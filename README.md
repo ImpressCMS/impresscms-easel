@@ -1,3 +1,4 @@
+![Header](https://github.com/ImpressCMS/impresscms-base-theme/blob/main/easel-github-header-banner.png)
 # ImpressCMS Easel
 
 [![ImpressCMS](https://img.shields.io/badge/ImpressCMS-Theme-blue.svg)](https://www.impresscms.org/)
