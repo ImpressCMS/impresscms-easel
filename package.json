@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "scripts": {
     "build": "vite build",
-    "preview": "vite build --config vite.config.preview.js"
+    "preview": "vite build --mode preview"
   },
   "devDependencies": {
     "vite": "^5.0.0",

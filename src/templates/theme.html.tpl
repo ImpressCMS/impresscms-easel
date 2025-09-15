@@ -8,6 +8,6 @@
 <body>
 <h1><{$xoops_slogan}></h1>
 <{include file="block.html"}>
-<script src="<{theme_js}>assets/js/main.js"></script>
+<script src="<{theme_js}>"></script>
 </body>
 </html>
