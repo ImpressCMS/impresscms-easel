@@ -64,7 +64,6 @@ impresscms-base-theme/
 │   ├─ js/           # JavaScript
 │   ├─ modules/      # Module-specific Smarty templates
 │   ├─ templates/    # General-use theme layouts
-│   ├─ style.css     # General theme styles
 │   └─ theme.html    # Main entry point
 │
 ├─ dist/             # Production build output
