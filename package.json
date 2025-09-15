@@ -1,0 +1,15 @@
+{
+  "name": "impresscms-theme",
+  "version": "0.0.1",
+  "scripts": {
+    "build": "vite build",
+    "preview": "vite build --config vite.config.preview.js"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0",
+    "glob": "^10.3.10",
+    "terser": "^5.30.0",
+    "cssnano": "^6.0.1",
+    "postcss": "^8.4.31"
+  }
+}
