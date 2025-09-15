@@ -3,7 +3,7 @@
 [![ImpressCMS](https://img.shields.io/badge/ImpressCMS-Theme-blue.svg)](https://www.impresscms.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.0+-yellow.svg)](https://vitejs.dev/)
 
-A starter template for building ImpressCMS themes using [Vite 5.0+](https://vitejs.dev/). This theme provides a modern frontend workflow and tooling for theme development, including hot module replacement, fast builds, and support for modern JavaScript and CSS.
+A starter template for building ImpressCMS themes using [Vite 5.0+](https://vitejs.dev/). This theme provides a modern frontend workflow and tooling for theme development, including fast builds and support for modern JavaScript and CSS.
 
 ## Features
 
