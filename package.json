@@ -1,5 +1,5 @@
 {
-  "name": "impresscms-theme",
+  "name": "impresscms-easel",
   "version": "0.0.2",
   "scripts": {
     "build": "vite build",
