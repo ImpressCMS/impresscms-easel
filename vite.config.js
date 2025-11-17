@@ -185,7 +185,7 @@ function copyTemplatesAndAssets() {
             // 2.5️⃣ Copy generated favicons (if they exist)
             const faviconDir = resolve(__dirname, 'src/public/img');
             if (fs.existsSync(faviconDir)) {
-                const favicons = glob.sync('src/public/img/**/*.{png,ico,webmanifest,html}');
+                const favicons = glob.sync('src/public/img/**/*.{png,ico,svg,webmanifest,html}');
                 favicons.forEach((srcFile) => {
                     const fileName = basename(srcFile);
                     const destFile = resolve(__dirname, 'dist/img', fileName);
@@ -193,6 +193,18 @@ function copyTemplatesAndAssets() {
                     fs.copyFileSync(srcFile, destFile);
                 });
                 console.log('✅ Favicons copied to dist/img');
+            }
+
+            // 2.6️⃣ Copy original SVG favicon from src/images (if it exists)
+            const currentFaviconSource = findFaviconSource();
+            if (currentFaviconSource && currentFaviconSource.endsWith('.svg')) {
+                const srcSvgPath = resolve(__dirname, currentFaviconSource.replace('./', ''));
+                const destSvgPath = resolve(__dirname, 'dist/img/favicon.svg');
+                if (fs.existsSync(srcSvgPath)) {
+                    fs.mkdirSync(dirname(destSvgPath), { recursive: true });
+                    fs.copyFileSync(srcSvgPath, destSvgPath);
+                    console.log('✅ Original SVG favicon copied to dist/img/favicon.svg');
+                }
             }
 
             // 3️⃣ Remove .vite map
