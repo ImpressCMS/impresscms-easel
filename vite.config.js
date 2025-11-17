@@ -1,10 +1,42 @@
 import { defineConfig } from 'vite';
 import { resolve, dirname, basename } from 'path';
+import { fileURLToPath } from 'url';
 import fs from 'fs';
 import { glob } from 'glob';
 import cssnano from 'cssnano';
 import https from 'https';
 import http from 'http';
+import { faviconsPlugin } from 'vite-plugin-favicons';
+
+// ESM equivalent of __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Helper: find favicon source file (returns path relative to project root)
+function findFaviconSource() {
+    const searchDir = 'src/images';
+
+    // Priority order: SVG > AVIF > WebP > PNG > JPEG
+    const patterns = [
+        'favicon.svg', '*.svg',
+        'favicon.avif', '*.avif',
+        'favicon.webp', '*.webp',
+        'favicon.png', '*.png',
+        'favicon.jpeg', 'favicon.jpg', '*.jpeg', '*.jpg'
+    ];
+
+    for (const pattern of patterns) {
+        const files = glob.sync(`${searchDir}/${pattern}`);
+        if (files.length > 0) {
+            console.log(`✅ Found favicon source: ${files[0]}`);
+            // Return path with ./ prefix for Vite plugin
+            return `./${files[0]}`;
+        }
+    }
+
+    console.warn('⚠️  No favicon source file found in src/images/');
+    return null;
+}
 
 // Helper: download extern bestand
 function downloadFile(url, dest) {
@@ -121,7 +153,7 @@ function copyTemplatesAndAssets() {
                 }
 
                 // Fonts en afbeeldingen vervangen
-                const assetExts = ['woff2?', 'ttf', 'eot', 'svg', 'png', 'jpe?g', 'gif', 'webp', 'avif'];
+                const assetExts = ['woff2?', 'ttf', 'eot', 'svg', 'png', 'jpe?g', 'gif', 'webp', 'avif', 'ico', 'webmanifest'];
                 const assetRegex = new RegExp(`([\\w\\-\\/]+\\.(${assetExts.join('|')}))`, 'gi');
                 content = content.replace(assetRegex, `<{$icms_imageurl}>$1`);
 
@@ -150,6 +182,19 @@ function copyTemplatesAndAssets() {
                 fs.copyFileSync(srcFile, destFile);
             });
 
+            // 2.5️⃣ Generated favicons kopiëren (if they exist)
+            const faviconDir = resolve(__dirname, 'src/public/img');
+            if (fs.existsSync(faviconDir)) {
+                const favicons = glob.sync('src/public/img/**/*.{png,ico,webmanifest,html}');
+                favicons.forEach((srcFile) => {
+                    const fileName = basename(srcFile);
+                    const destFile = resolve(__dirname, 'dist/img', fileName);
+                    fs.mkdirSync(dirname(destFile), { recursive: true });
+                    fs.copyFileSync(srcFile, destFile);
+                });
+                console.log('✅ Favicons gekopieerd naar dist/img');
+            }
+
             // 3️⃣ .vite map verwijderen
             const viteDir = resolve(__dirname, 'dist/.vite');
             if (fs.existsSync(viteDir)) {
@@ -164,6 +209,7 @@ function copyTemplatesAndAssets() {
 export default defineConfig(({ mode }) => {
     const noMinify = mode === 'preview';
     const cssEntry = resolve(__dirname, 'src/css/style.css'); // dummy entry
+    const faviconSource = findFaviconSource();
 
     return {
         root: 'src',
@@ -206,6 +252,24 @@ export default defineConfig(({ mode }) => {
         ],
         plugins: [
             handleExternalCssImports(), // eerst externe CSS binnenhalen
+            ...(faviconSource ? [faviconsPlugin({
+                imgSrc: faviconSource,
+                path: '/img',  // Output path for favicons (relative to public dir)
+                appName: 'ImpressCMS',
+                appDescription: 'ImpressCMS Theme',
+                developerName: 'ImpressCMS',
+                developerURL: 'https://www.impresscms.org/',
+                background: '#006699',
+                theme_color: '#006699',
+                icons: {
+                    android: true,
+                    appleIcon: true,
+                    appleStartup: false,
+                    favicons: true,
+                    windows: false,
+                    yandex: false
+                }
+            })] : []),
             copyTemplatesAndAssets()    // daarna templates & assets kopiëren
         ]
     };
