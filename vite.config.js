@@ -4,9 +4,10 @@ import fs from 'fs';
 import { glob } from 'glob';
 import cssnano from 'cssnano';
 import https from 'https';
-import purgecss from '@fullhuman/postcss-purgecss';
-
+import purgecssModule from '@fullhuman/postcss-purgecss';
 import http from 'http';
+
+const purgecss = purgecssModule.default || purgecssModule;
 
 // Helper: download extern bestand
 function downloadFile(url, dest) {
