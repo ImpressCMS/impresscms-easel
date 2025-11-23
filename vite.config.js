@@ -129,18 +129,6 @@ function copyTemplatesAndAssets() {
                 const assetRegex = new RegExp(`(\\.\\/)?(?:img|fonts)\\/([\\w\\-\\.]+\\.(${assetExts.join('|')}))`, 'gi');
                 content = content.replace(assetRegex, (_, _prefix, filename) => `<{$icms_imageurl}>${filename}`);
 
-                // Template includes → $theme_name
-                content = content.replace(
-                    /<\{include(q?)\s+([^>]*?)file=["']([^"']+)["']([^>]*?)\}>/gi,
-                    (match, q, before, filePath, after) => {
-                        if (!filePath.startsWith('$') && !filePath.startsWith('$theme_name')) {
-                            const newPath = `$theme_name/${filePath.replace(/^.*?templates[\\/]/, '')}`;
-                            return `<{include${q} ${before}file="${newPath}"${after}}>`;
-                        }
-                        return match;
-                    }
-                );
-
                 fs.writeFileSync(destFile, content, 'utf-8');
             });
 
