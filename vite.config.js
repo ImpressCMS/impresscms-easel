@@ -4,6 +4,8 @@ import fs from 'fs';
 import { glob } from 'glob';
 import cssnano from 'cssnano';
 import https from 'https';
+import purgecss from '@fullhuman/postcss-purgecss';
+
 import http from 'http';
 
 // Helper: download extern bestand
@@ -25,35 +27,9 @@ function downloadFile(url, dest) {
     });
 }
 
-// Plugin: externe CSS imports downloaden en herschrijven
-function handleExternalCssImports() {
-    return {
-        name: 'handle-external-css-imports',
-        async buildStart() {
-            // 1️⃣ CSS-bestanden scannen
-            const cssFiles = glob.sync('src/css/**/*.css');
-            for (const file of cssFiles) {
-                let content = fs.readFileSync(file, 'utf-8');
-                content = await processExternalCss(content);
-                fs.writeFileSync(file, content, 'utf-8');
-            }
-
-            // 2️⃣ theme.html scannen op externe CSS
-            const themeFile = 'src/theme.html';
-            if (fs.existsSync(themeFile)) {
-                let content = fs.readFileSync(themeFile, 'utf-8');
-                content = await processExternalCss(content, true);
-                fs.writeFileSync(themeFile, content, 'utf-8');
-            }
-        }
-    };
-}
-
 // Hulpfunctie: zoekt externe CSS en downloadt deze
 async function processExternalCss(content, isHtml = false) {
-    // @import in CSS of inline <style>
     const importRegex = /@import\s+(?:url\()?["']?(https?:\/\/[^"')\s]+)["']?\)?\s*;?/gi;
-    // <link rel="stylesheet" href="https://...">
     const linkRegex = /<link[^>]+href=["'](https?:\/\/[^"']+)["'][^>]*>/gi;
 
     const matches = [
@@ -79,8 +55,31 @@ async function processExternalCss(content, isHtml = false) {
     return content;
 }
 
+// Plugin: externe CSS imports downloaden en herschrijven
+function handleExternalCssImports() {
+    return {
+        name: 'handle-external-css-imports',
+        async buildStart() {
+            // CSS-bestanden
+            const cssFiles = glob.sync('src/css/**/*.css');
+            for (const file of cssFiles) {
+                let content = fs.readFileSync(file, 'utf-8');
+                content = await processExternalCss(content);
+                fs.writeFileSync(file, content, 'utf-8');
+            }
 
-// Plugin: templates & assets kopiëren, placeholders vervangen, .vite verwijderen
+            // theme.html
+            const themeFile = 'src/theme.html';
+            if (fs.existsSync(themeFile)) {
+                let content = fs.readFileSync(themeFile, 'utf-8');
+                content = await processExternalCss(content, true);
+                fs.writeFileSync(themeFile, content, 'utf-8');
+            }
+        }
+    };
+}
+
+// Plugin: templates & assets kopiëren, paden herschrijven, .vite verwijderen
 function copyTemplatesAndAssets() {
     return {
         name: 'copy-templates-and-assets',
@@ -92,12 +91,11 @@ function copyTemplatesAndAssets() {
             }
 
             const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf-8'));
-            const cssFile = `<{$icms_imageurl}>style.css`;
             const jsFile = manifest['src/js/main.js']
-                ? `<{$icms_imageurl}>${manifest['src/js/main.js'].file}`
+                ? `<{$icms_imageurl}>${manifest['src/js/main.js'].file.split('/').pop()}`
                 : '';
 
-            // 1️⃣ Templates ophalen
+            // Templates
             const templates = [
                 ...glob.sync('src/templates/**/*.{html.tpl,html}'),
                 ...glob.sync('src/modules/**/*.{html.tpl,html}'),
@@ -112,24 +110,28 @@ function copyTemplatesAndAssets() {
 
                 let content = fs.readFileSync(srcFile, 'utf-8');
 
-                // CSS en JS vervangen
-                content = content.replace(/style\.css/g, cssFile);
+                // CSS in /css/ → <{$icms_imageurl}>css/bestandsnaam
+                content = content.replace(
+                    /(\.\/)?css\/([a-z0-9_\-\.]+\.css)/gi,
+                    (_, _prefix, filename) => `<{$icms_imageurl}>css/${filename}`
+                );
+
+                // JS-bestand uit manifest
                 if (jsFile) {
                     const jsName = manifest['src/js/main.js'].file.split('/').pop();
-                    const jsRegex = new RegExp(jsName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'g');
+                    const jsRegex = new RegExp(`(\\.\\/)?js\\/${jsName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`, 'gi');
                     content = content.replace(jsRegex, jsFile);
                 }
 
-                // Fonts en afbeeldingen vervangen
+                // Fonts en afbeeldingen
                 const assetExts = ['woff2?', 'ttf', 'eot', 'svg', 'png', 'jpe?g', 'gif', 'webp', 'avif'];
-                const assetRegex = new RegExp(`([\\w\\-\\/]+\\.(${assetExts.join('|')}))`, 'gi');
-                content = content.replace(assetRegex, `<{$icms_imageurl}>$1`);
+                const assetRegex = new RegExp(`(\\.\\/)?(?:img|fonts)\\/([\\w\\-\\.]+\\.(${assetExts.join('|')}))`, 'gi');
+                content = content.replace(assetRegex, (_, _prefix, filename) => `<{$icms_imageurl}>${filename}`);
 
-                // Template includes herschrijven naar $theme_name
+                // Template includes → $theme_name
                 content = content.replace(
                     /<\{include(q?)\s+([^>]*?)file=["']([^"']+)["']([^>]*?)\}>/gi,
                     (match, q, before, filePath, after) => {
-                        // Alleen aanpassen als het geen variabele is en niet al met $theme_name begint
                         if (!filePath.startsWith('$') && !filePath.startsWith('$theme_name')) {
                             const newPath = `$theme_name/${filePath.replace(/^.*?templates[\\/]/, '')}`;
                             return `<{include${q} ${before}file="${newPath}"${after}}>`;
@@ -141,7 +143,7 @@ function copyTemplatesAndAssets() {
                 fs.writeFileSync(destFile, content, 'utf-8');
             });
 
-            // 2️⃣ Afbeeldingen fysiek kopiëren
+            // Afbeeldingen fysiek kopiëren
             const images = glob.sync('src/img/**/*.{png,jpg,jpeg,gif,svg,webp,avif}');
             images.forEach((srcFile) => {
                 const relPath = srcFile.replace(/^src[\\/]/, '');
@@ -150,7 +152,7 @@ function copyTemplatesAndAssets() {
                 fs.copyFileSync(srcFile, destFile);
             });
 
-            // 3️⃣ .vite map verwijderen
+            // .vite map verwijderen
             const viteDir = resolve(__dirname, 'dist/.vite');
             if (fs.existsSync(viteDir)) {
                 fs.rmSync(viteDir, { recursive: true, force: true });
@@ -160,10 +162,31 @@ function copyTemplatesAndAssets() {
     };
 }
 
-
 export default defineConfig(({ mode }) => {
     const noMinify = mode === 'preview';
-    const cssEntry = resolve(__dirname, 'src/css/style.css'); // dummy entry
+    const cssEntry = resolve(__dirname, 'src/css/style.css'); // dummy entry om altijd manifest te genereren
+    const standaloneCss = glob.sync('src/css/standalone/**/*.css');
+    const input = Object.fromEntries([
+        ['style', cssEntry],
+        ...standaloneCss.map((p) => [basename(p, '.css'), resolve(__dirname, p)]),
+    ]);
+
+    const purgePlugin = purgecss({
+        content: ['src/**/*.html', 'src/**/*.html.tpl'],
+        defaultExtractor: (content) =>
+            (
+                content
+                    .replace(/<\{[\s\S]*?\}>/g, ' ')
+                    .replace(/\{\$[^}]+\}/g, ' ')
+                    .match(/[A-Za-z0-9-_:\/]+/g)
+            ) || [],
+        safelist: {
+            standard: [/^is-/, /^has-/, /^has-text-/, /^has-background-/],
+        },
+        keyframes: true,
+        fontFace: true,
+    });
+
 
     return {
         root: 'src',
@@ -183,12 +206,15 @@ export default defineConfig(({ mode }) => {
                     }
                 },
             rollupOptions: {
-                input: { style: cssEntry },
+                input,
                 output: {
                     entryFileNames: 'assets/js/[name].[hash].js',
                     chunkFileNames: 'assets/js/[name].[hash].js',
                     assetFileNames: ({ name }) => {
-                        if (/\.(css)$/.test(name ?? '')) return 'style[extname]';
+                        if (/\.(css)$/.test(name ?? '')) {
+                            const base = name ? name.split(/[\\/\\\\]/).pop() : 'style.css';
+                            return `css/${base}`; // emit CSS into dist/css/
+                        }
                         if (/\.(woff2?|ttf|eot|svg|png|jpe?g|gif|webp|avif)$/.test(name ?? '')) {
                             return 'assets/[name].[hash][extname]';
                         }
@@ -198,15 +224,29 @@ export default defineConfig(({ mode }) => {
             }
         },
         css: {
-            postcss: { plugins: [cssnano({ preset: 'default' })] }
+            postcss: {
+                plugins: [
+                    !noMinify && purgePlugin,
+                    cssnano({ preset: 'default' })
+                ].filter(Boolean)
+            }
         },
         assetsInclude: [
-            '**/*.woff','**/*.woff2','**/*.ttf','**/*.eot','**/*.svg',
-            '**/*.png','**/*.jpg','**/*.jpeg','**/*.gif','**/*.webp','**/*.avif'
+            '**/*.woff',
+            '**/*.woff2',
+            '**/*.ttf',
+            '**/*.eot',
+            '**/*.svg',
+            '**/*.png',
+            '**/*.jpg',
+            '**/*.jpeg',
+            '**/*.gif',
+            '**/*.webp',
+            '**/*.avif'
         ],
         plugins: [
-            handleExternalCssImports(), // eerst externe CSS binnenhalen
-            copyTemplatesAndAssets()    // daarna templates & assets kopiëren
+            handleExternalCssImports(), // eerst externe CSS binnenhalen (ook in theme.html)
+            copyTemplatesAndAssets()    // daarna templates & assets kopiëren en paden herschrijven
         ]
     };
 });
