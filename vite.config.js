@@ -76,6 +76,14 @@ function handleExternalCssImports() {
                 content = await processExternalCss(content, true);
                 fs.writeFileSync(themeFile, content, 'utf-8');
             }
+
+            // theme_admin.html (optional)
+            const themeAdminFile = 'src/theme_admin.html';
+            if (fs.existsSync(themeAdminFile)) {
+                let content = fs.readFileSync(themeAdminFile, 'utf-8');
+                content = await processExternalCss(content, true);
+                fs.writeFileSync(themeAdminFile, content, 'utf-8');
+            }
         }
     };
 }
@@ -100,7 +108,8 @@ function copyTemplatesAndAssets() {
             const templates = [
                 ...glob.sync('src/templates/**/*.{html.tpl,html}'),
                 ...glob.sync('src/modules/**/*.{html.tpl,html}'),
-                ...glob.sync('src/theme.html')
+                ...glob.sync('src/theme.html'),
+                ...glob.sync('src/theme_admin.html')
             ];
 
             templates.forEach((srcFile) => {
@@ -155,9 +164,11 @@ export default defineConfig(({ mode }) => {
     const noMinify = mode === 'preview';
     const cssEntry = resolve(__dirname, 'src/css/style.css'); // dummy entry om altijd manifest te genereren
     const standaloneCss = glob.sync('src/css/standalone/**/*.css');
+    const jsFiles = glob.sync('src/js/**/*.js');
     const input = Object.fromEntries([
         ['style', cssEntry],
         ...standaloneCss.map((p) => [basename(p, '.css'), resolve(__dirname, p)]),
+        ...jsFiles.map((p) => [basename(p, '.js'), resolve(__dirname, p)]),
     ]);
 
     const purgePlugin = purgecss({
