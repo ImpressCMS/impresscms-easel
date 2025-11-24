@@ -208,12 +208,13 @@ export default defineConfig(({ mode }) => {
             rollupOptions: {
                 input,
                 output: {
-                    entryFileNames: 'assets/js/[name].[hash].js',
-                    chunkFileNames: 'assets/js/[name].[hash].js',
+                    entryFileNames: 'js/[name].[hash].js',
+                    chunkFileNames: 'js/[name].[hash].js',
                     assetFileNames: ({ name }) => {
                         if (/\.(css)$/.test(name ?? '')) {
                             const base = name ? name.split(/[\\/\\\\]/).pop() : 'style.css';
-                            return `css/${base}`; // emit CSS into dist/css/
+                            // Main style.css goes to root dist/ without hash, other CSS files go to dist/css/
+                            return base === 'style.css' ? 'style.css' : `css/${base}`;
                         }
                         if (/\.(woff2?|ttf|eot|svg|png|jpe?g|gif|webp|avif)$/.test(name ?? '')) {
                             return 'assets/[name].[hash][extname]';
