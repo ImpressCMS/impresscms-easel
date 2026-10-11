@@ -1,0 +1,227 @@
+:root {
+    --theme-text: #1f2328;
+    --theme-muted: #59636e;
+    --theme-background: #ffffff;
+    --theme-surface: #f6f8fa;
+    --theme-border: #d1d9e0;
+    --theme-link: #0b5cad;
+    --theme-accent: #0b5cad;
+    --theme-on-accent: #ffffff;
+    --theme-focus: #b35900;
+    --theme-header-background: #1f2328;
+    --theme-header-text: #ffffff;
+    --theme-header-muted: #c9d1d9;
+    --theme-font: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --theme-width: 80rem;
+    --theme-canvas-width: 16rem;
+    --theme-gutter: 1.5rem;
+    --theme-gap: 1.5rem;
+    --theme-radius: 0.375rem;
+}
+
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+}
+
+body {
+    margin: 0;
+    background: var(--theme-background);
+    color: var(--theme-text);
+    font-family: var(--theme-font);
+    line-height: 1.6;
+}
+
+img,
+svg,
+video {
+    max-width: 100%;
+    height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+    line-height: 1.25;
+}
+
+a {
+    color: var(--theme-link);
+    text-underline-offset: 0.15em;
+}
+
+a:hover {
+    text-decoration-thickness: 2px;
+}
+
+:focus-visible {
+    outline: 3px solid var(--theme-focus);
+    outline-offset: 2px;
+}
+
+.skip-link {
+    position: absolute;
+    inset-inline-start: var(--theme-gutter);
+    top: -100%;
+    z-index: 100;
+    padding: 0.5rem 1rem;
+    border-radius: var(--theme-radius);
+    background: var(--theme-accent);
+    color: var(--theme-on-accent);
+}
+
+.skip-link:focus {
+    top: 0.5rem;
+}
+
+.site-header {
+    background: var(--theme-header-background);
+    color: var(--theme-header-text);
+}
+
+.site-header-inner,
+.site-footer-inner,
+.page {
+    max-width: var(--theme-width);
+    margin-inline: auto;
+    padding-inline: var(--theme-gutter);
+}
+
+.site-header-inner {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem 1.5rem;
+    padding-block: 1rem;
+}
+
+.site-brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: var(--theme-header-text);
+    font-size: 1.25rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.site-slogan {
+    margin: 0;
+    color: var(--theme-header-muted);
+}
+
+.page {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--theme-gap);
+    padding-block: var(--theme-gap);
+}
+
+@media (min-width: 64em) {
+    .page.has-left {
+        grid-template-columns: var(--theme-canvas-width) minmax(0, 1fr);
+    }
+
+    .page.has-right {
+        grid-template-columns: minmax(0, 1fr) var(--theme-canvas-width);
+    }
+
+    .page.has-left.has-right {
+        grid-template-columns: var(--theme-canvas-width) minmax(0, 1fr) var(--theme-canvas-width);
+    }
+}
+
+.page-main:focus {
+    outline: none;
+}
+
+.zone-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 16rem), 1fr));
+    gap: var(--theme-gap);
+}
+
+.zone-top {
+    margin-block-end: var(--theme-gap);
+}
+
+.zone-bottom {
+    margin-block-start: var(--theme-gap);
+}
+
+.zone {
+    display: grid;
+    gap: var(--theme-gap);
+    align-content: start;
+}
+
+.block {
+    padding: 1rem;
+    border: 1px solid var(--theme-border);
+    border-radius: var(--theme-radius);
+    background: var(--theme-surface);
+}
+
+.block-title {
+    margin-block: 0 0.75rem;
+    font-size: 1.125rem;
+}
+
+.block-content > :first-child {
+    margin-block-start: 0;
+}
+
+.block-content > :last-child {
+    margin-block-end: 0;
+}
+
+.module-content {
+    overflow-wrap: anywhere;
+}
+
+.module-content table {
+    display: block;
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.site-footer {
+    border-block-start: 1px solid var(--theme-border);
+    background: var(--theme-surface);
+    color: var(--theme-muted);
+    font-size: 0.875rem;
+}
+
+.site-footer-inner {
+    padding-block: 1.5rem;
+}
+
+button,
+input[type="submit"],
+input[type="button"],
+.button {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 0;
+    border-radius: var(--theme-radius);
+    background: var(--theme-accent);
+    color: var(--theme-on-accent);
+    font: inherit;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+input,
+select,
+textarea {
+    max-width: 100%;
+    font: inherit;
+}

@@ -1,0 +1,38 @@
+name: Release
+
+on:
+  release:
+    types: [created]
+
+permissions:
+  contents: write
+
+jobs:
+  theme:
+    name: Attach the built theme to the release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm test
+
+      # The zip holds one folder, named after the package, that goes into htdocs/themes/
+      - name: Zip the theme
+        run: |
+          name=$(node -p "require('./package.json').name")
+          mkdir -p "release/$name"
+          cp -r dist/. "release/$name/"
+          (cd release && zip -r "../$name.zip" "$name")
+          echo "THEME_ZIP=$name.zip" >> "$GITHUB_ENV"
+
+      - name: Upload the zip to the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ github.event.release.tag_name }}" "$THEME_ZIP" --clobber
