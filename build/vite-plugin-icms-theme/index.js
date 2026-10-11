@@ -16,6 +16,7 @@ export const defaultOptions = {
         'icons/**',
         'fonts/**',
         'language/**',
+        'shot.*',
         'screenshot.*',
         'favicon.*',
         '**/*.php',

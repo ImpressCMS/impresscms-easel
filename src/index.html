@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<!-- Static mockup of theme.html for `npm run dev`. It is not part of the built theme. -->
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mockup : My ImpressCMS site</title>
+    <link rel="icon" type="image/svg+xml" href="/img/favicon.svg">
+    <script type="module" src="/js/theme.js"></script>
+</head>
+<body class="module-system">
+    <a class="skip-link" href="#main-content">Skip to main content</a>
+
+    <header class="site-header">
+        <div class="site-header-inner">
+            <a class="site-brand" href="/">
+                <img class="site-logo" src="/img/logo.svg" alt="" width="40" height="40">
+                <span class="site-name">My ImpressCMS site</span>
+            </a>
+            <p class="site-slogan">Make a lasting impression</p>
+        </div>
+    </header>
+
+    <div class="page has-left has-right">
+        <aside class="canvas canvas-left">
+            <div class="zone">
+                <section class="block block-system" aria-labelledby="block-1-title">
+                    <h2 class="block-title" id="block-1-title">Main menu</h2>
+                    <div class="block-content">
+                        <ul>
+                            <li><a href="#">Home</a></li>
+                            <li><a href="#">News</a></li>
+                            <li><a href="#">Downloads</a></li>
+                        </ul>
+                    </div>
+                </section>
+            </div>
+        </aside>
+
+        <main id="main-content" class="page-main" tabindex="-1">
+            <div class="zone-row zone-top">
+                <div class="zone">
+                    <section class="block block-news" aria-labelledby="block-2-title">
+                        <h2 class="block-title" id="block-2-title">Top left block</h2>
+                        <div class="block-content"><p>Block in the page_topleft zone.</p></div>
+                    </section>
+                </div>
+                <div class="zone">
+                    <section class="block block-news" aria-labelledby="block-3-title">
+                        <h2 class="block-title" id="block-3-title">Top right block</h2>
+                        <div class="block-content"><p>Block in the page_topright zone.</p></div>
+                    </section>
+                </div>
+            </div>
+
+            <div class="module-content">
+                <h1>Module content</h1>
+                <p>This is where <code>$icms_contents</code> is rendered. Text with <a href="#">a link</a>.</p>
+                <form>
+                    <label for="mockup-search">Search</label>
+                    <input id="mockup-search" type="search" name="query">
+                    <button type="submit">Search</button>
+                </form>
+            </div>
+        </main>
+
+        <aside class="canvas canvas-right">
+            <div class="zone">
+                <section class="block block-system" aria-labelledby="block-4-title">
+                    <h2 class="block-title" id="block-4-title">Login</h2>
+                    <div class="block-content"><p><a href="#">Sign in</a> or <a href="#">register</a>.</p></div>
+                </section>
+            </div>
+        </aside>
+    </div>
+
+    <footer class="site-footer">
+        <div class="site-footer-inner">
+            Powered by ImpressCMS &copy; 2007-2026 The ImpressCMS Project
+        </div>
+    </footer>
+</body>
+</html>

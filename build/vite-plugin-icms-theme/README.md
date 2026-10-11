@@ -51,7 +51,7 @@ CSS/SCSS files can be entries too; their directive only produces a stylesheet li
 | `entries` | `[]` | JS/CSS/SCSS entry points, relative to `root`. |
 | `templates` | `['**/*.html', '**/*.tpl']` | Smarty templates to process, relative to `root`. |
 | `exclude` | `[]` | Globs to skip, e.g. static HTML mockups that are only used with the dev server. |
-| `static` | `img/**`, `images/**`, `icons/**`, `fonts/**`, `language/**`, `screenshot.*`, `favicon.*`, `**/*.php`, `**/*.ini`, `**/*.txt` | Files copied verbatim. |
+| `static` | `img/**`, `images/**`, `icons/**`, `fonts/**`, `language/**`, `shot.*`, `screenshot.*`, `favicon.*`, `**/*.php`, `**/*.ini`, `**/*.txt` | Files copied verbatim. |
 | `assetsDir` | `'assets'` | Folder in the output for the bundles. |
 | `assetUrlPrefix` | `'<{$icms_imageurl}>'` | Prefix for bundle URLs in the templates. |
 | `delimiters` | `['<{', '}>']` | Smarty delimiters, use `['{', '}']` for themes with the Smarty defaults. |
