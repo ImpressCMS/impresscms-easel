@@ -1,0 +1,30 @@
+{
+  "name": "impresscms-easel",
+  "version": "1.0.0",
+  "description": "Template repository for building ImpressCMS themes with Vite",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "watch": "vite build --watch",
+    "check:contrast": "node scripts/check-contrast.mjs",
+    "test:unit": "node --test \"build/**/*.test.js\" \"scripts/**/*.test.mjs\"",
+    "test:dist": "node --test tests/dist.test.mjs",
+    "test": "npm run test:unit && npm run check:contrast && npm run build && npm run test:dist",
+    "test:pages": "node --test --test-concurrency=1 \"tests/pages/*.test.mjs\""
+  },
+  "devDependencies": {
+    "acorn": "^8.19.0",
+    "axe-core": "^4.14.0",
+    "fast-glob": "^3.3.3",
+    "lightningcss": "^1.33.0",
+    "playwright-core": "^1.64.0",
+    "terser": "^5.51.2",
+    "vite": "^8.3.4"
+  }
+}
